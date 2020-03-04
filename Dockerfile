@@ -1,13 +1,20 @@
-FROM alpine/helm:3.1.1
-LABEL maintainer "mario.siegenthaler@linkyard.ch"
+FROM debian:latest AS build
 
-RUN apk add --update --upgrade --no-cache jq bash curl git gettext libintl
+ENV HELM_VERSION=3.0.0-beta.3
+ENV RELEASE_ROOT="https://get.helm.sh"
+ENV RELEASE_FILE="helm-v${HELM_VERSION}-linux-amd64.tar.gz"
 
-ENV KUBERNETES_VERSION 1.16.3
-RUN curl -L -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/v${KUBERNETES_VERSION}/bin/linux/amd64/kubectl; \
-  chmod +x /usr/local/bin/kubectl
+RUN apt-get update && apt-get install curl -y && \
+    curl -L ${RELEASE_ROOT}/${RELEASE_FILE} |tar xvz && \
+    mv linux-amd64/helm /usr/bin/helm && \
+    chmod +x /usr/bin/helm
+
+FROM bitnami/kubectl:latest
+
+LABEL maintainer="thorsten.hans@gmail.com"
+
+COPY --from=build /usr/bin/helm /usr/bin/helm
 
 ADD assets /opt/resource
-RUN chmod +x /opt/resource/*
 
 ENTRYPOINT [ "/bin/bash" ]
