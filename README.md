@@ -11,7 +11,8 @@ resource_types:
 - name: helm
   type: docker-image
   source:
-    repository: linkyard/concourse-helm-resource
+    repository: ehealthafrica/concourse-helm-resource
+    branch: helm3 # remove when merged to master
 ```
 
 ## Source Configuration
